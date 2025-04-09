@@ -119,7 +119,7 @@ interface Location {
 function App() {
   const BASE_URL = "https://2hx4ndw6u0.execute-api.us-east-1.amazonaws.com/v1/weather";
   const [searchTerm, setSearchTerm] = useState("");
-  const [unit, setUnit] = useState("metric");
+  const [unit] = useState("metric");
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationTime, setLocationTime] = useState(0);
   useEffect(() => {
