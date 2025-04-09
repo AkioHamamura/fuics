@@ -2,47 +2,84 @@ import { buttonVariants } from "@/components/ui/button";
 import react from "@vitejs/plugin-react";
 import {useState} from "react";
 
+export interface WeatherData {
+  location: Location | null
+  current:  Current | null
+}
+
+export interface Current {
+  last_updated_epoch: number | null
+  last_updated:       string | null
+  temp_c:             number | null
+  temp_f:             number | null
+  is_day:             number | null
+  condition:          Condition | null
+  wind_mph:           number | null
+  wind_kph:           number | null
+  wind_degree:        number | null
+  wind_dir:           string | null
+  pressure_mb:        number | null
+  pressure_in:        number | null
+  precip_mm:          number | null
+  precip_in:          number | null
+  humidity:           number | null
+  cloud:              number | null
+  feelslike_c:        number | null
+  feelslike_f:        number | null
+  windchill_c:        number | null
+  windchill_f:        number | null
+  heatindex_c:        number | null
+  heatindex_f:        number | null
+  dewpoint_c:         number | null
+  dewpoint_f:         number | null
+  vis_km:             number | null
+  vis_miles:          number | null
+  uv:                 number | null
+  gust_mph:           number | null
+  gust_kph:           number | null
+}
+
+export interface Condition {
+  text: string | null
+  icon: string | null
+  code: number | null
+}
+
+export interface Location {
+  name:            string | null
+  region:          string | null
+  country:         string | null
+  lat:             number | null
+  lon:             number | null
+  tz_id:           string | null
+  localtime_epoch: number | null
+  localtime:       string | null
+}
+
 function App() {
 //Ready an API call function to get the data
   //Also ready some variables to store the data
   //Also a variable to change the search bar and unit variable
     //Also a variable to change the location
   //BASE_URL: https://2hx4ndw6u0.execute-api.us-east-1.amazonaws.com/v1/weather/{proxy+}
-  const BASE_URL = "https://2hx4ndw6u0.execute-api.us-east-1.amazonaws.com/v1/weather/";
+  const BASE_URL = "https://2hx4ndw6u0.execute-api.us-east-1.amazonaws.com/v1/weather";
   const [searchTerm, setSearchTerm] = useState("");
     const [unit, setUnit] = useState("metric");
-    const [location, setLocation] = useState("New York");
-    const [weatherData, setWeatherData] = useState([
-        {
-            location: {
-                name: "New York",
-                region: "NY",
-                country: "USA",
-                lat: 40.7128,
-                lon: -74.0060,
-                tz_id: "America/New_York",
-                localtime_epoch: 1633072800,
-                localtime: "2021-10-01 12:00"
-            },
-            current: {
-                temp_c: 20,
-                condition: {
-                    text: "Sunny",
-                    icon: "//cdn.weatherapi.com/weather/64x64/day/113.png"
-                },
-                wind_kph: 15,
-                humidity: 60,
-                pressure_mb: 1012
-            }
-        }
-    ]);
-    function getWeatherData(location : string, route : string) {
-      const response = fetch(`${BASE_URL}${route}?q=${location}`, {
-        method: "GET"
-      }).catch( (err) =>{console.error(err) })
-      console.log(response);
-    }
+    const [weatherData, setWeatherData] = useState({} as WeatherData);
+    const getCurrentWeatherData = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await fetch(`${BASE_URL}/current.json?q=${searchTerm}`)
+            .then(async res => {
+              const data = await res.json();
+              setWeatherData(data);
+              console.log(data);
+            })
+            .catch(error => {
+              console.error("Error fetching data:", error);
+              alert("Error: " + error);
+            });
 
+    }
 
 
   return (
@@ -51,6 +88,7 @@ function App() {
           <div>
             <h1 className="text-3xl font-bold text-blue-600">WeatherSphere</h1>
             <p className="text-sm text-gray-600">Your personal weather companion</p>
+
           </div>
           <div className="flex items-center space-x-2">
             <button id="unit-toggle"
@@ -65,17 +103,22 @@ function App() {
         </header>
 
         <div className="relative mb-8">
-          <div className="flex items-center bg-white rounded-full shadow-md overflow-hidden">
+          <form onSubmit={getCurrentWeatherData} className="flex items-center bg-white rounded-full shadow-md overflow-hidden">
             <input
                 type="text"
                 id="search-input"
                 placeholder="Search for a city..."
                 className="flex-grow px-5 py-3 text-gray-700 focus:outline-none rounded-full"
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  console.log(searchTerm);
+                }}
             />
-            <button id="search-btn" className="px-5 py-3 bg-blue-500 text-white hover:bg-blue-600 transition">
+            <button id="search-btn" className="px-5 py-3 bg-blue-500 text-white hover:bg-blue-600 transition"
+            type={"submit"}>
               <i className="fas fa-search"></i>
             </button>
-          </div>
+          </form>
           <div id="search-results"
                className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg hidden max-h-60 overflow-y-auto"></div>
         </div>
@@ -85,7 +128,10 @@ function App() {
             <div id="current-weather" className="flex flex-col h-full">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h2 id="current-location" className="text-2xl font-bold">Loading...</h2>
+                  <h2 id="current-location" className="text-2xl font-bold">
+                    {weatherData ? weatherData.location?.name : "Loading..."}</h2>
+
+
                   <p id="current-date" className="text-gray-600">-- -- ----</p>
                 </div>
                 <div id="current-condition" className="text-right">
