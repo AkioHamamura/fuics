@@ -1,5 +1,8 @@
 import {useState, useEffect} from "react";
 import WeatherCard from "@/components/ui/weatherCard.tsx";
+import { FaSearch } from "react-icons/fa";
+
+
 interface WeatherData {
   location: Location;
   current:  Current;
@@ -220,10 +223,10 @@ function App() {
             />
             <button
                 id="search-btn"
-                className="px-5 py-3 bg-blue-500 text-white hover:bg-blue-600 transition"
-                type="submit"
-            >
-              <i className="fas fa-search"></i>
+                className="px-5 py-4 bg-blue-500 text-white hover:bg-blue-600 transition"
+                type="submit">
+              <FaSearch />
+
             </button>
           </form>
         </div>
@@ -267,6 +270,7 @@ function App() {
               </div>
               <div className="grid grid-cols-3 gap-4 mt-auto">
                 <div className="bg-blue-50 p-3 rounded-lg text-center">
+
                   <i className="fas fa-wind text-blue-500 mb-1"></i>
                   <p className="text-sm text-gray-600">Wind</p>
                   <p id="current-wind" className="font-medium">
@@ -360,28 +364,8 @@ function App() {
               <div id="forecast-content" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
                     {weatherData?.forecast?.forecastday.map((day) => (<WeatherCard forecastDay={day}/>))}</div>
 
-              <div id="history-content" className="hidden">
-                <div className="weather-card p-6">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <h3 className="text-lg font-semibold">Past Weather Data</h3>
-                    <div className="mt-2 md:mt-0">
-                      <input
-                          type="date"
-                          id="history-date"
-                          className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <button id="fetch-history"
-                              className="ml-2 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                        Fetch Data
-                      </button>
-                    </div>
-                  </div>
-
-                  <div id="history-data" className="text-center py-8">
-                    <i className="fas fa-clock text-4xl text-gray-300 mb-2"></i>
-                    <p className="text-gray-500">Select a date to view historical weather data</p>
-                  </div>
-                </div>
+              <div id="history-content" className="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+                {weatherData?.forecast?.forecastday.map((day) => (<WeatherCard forecastDay={day}/>))}
               </div>
             </div>
 
