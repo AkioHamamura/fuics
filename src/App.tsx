@@ -36,6 +36,7 @@ interface Current {
   uv:                  number;
   gust_mph:            number;
   gust_kph:            number;
+  air_quality:         { [key: string]: number };
   time_epoch?:         number;
   time?:               string;
   snow_cm?:            number;
@@ -44,6 +45,7 @@ interface Current {
   will_it_snow?:       number;
   chance_of_snow?:     number;
 }
+
 
 interface Condition {
   text: Text;
@@ -103,6 +105,7 @@ interface Day {
   daily_chance_of_snow: number;
   condition:            Condition;
   uv:                   number;
+  air_quality:          { [key: string]: number };
 }
 
 interface Location {
@@ -127,10 +130,11 @@ function App() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const response = await fetch(`${BASE_URL}/forecast.json?q=${latitude},${longitude}`);
+            const response = await fetch(`${BASE_URL}/forecast.json?aqi=yes&q=${latitude},${longitude}`);
             if (!response.ok) throw new Error("Failed to fetch weather data");
             const data: WeatherData = await response.json();
             setWeatherData(data);
+
             const currTime = (data.location.localtime_epoch);
             //get the time in hours of currTime
             const date = new Date(currTime * 1000);
@@ -150,7 +154,7 @@ function App() {
   const getCurrentWeatherData = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${BASE_URL}/current.json?q=${searchTerm}`);
+      const response = await fetch(`${BASE_URL}/forecast.json?aqi=yes&q=${searchTerm}`);
       if (!response.ok) throw new Error("Failed to fetch weather data");
       const data: WeatherData = await response.json();
       setWeatherData(data);
@@ -269,7 +273,7 @@ function App() {
                 </div>
               </div></div></div>
 
-              <div className="weather-card p-6">
+              <div className="weather-card p-6 ">
                 <h3 className="text-lg font-semibold mb-4">Hourly Forecast</h3>
                 <div id="hourly-forecast" className="hourly-forecast flex overflow-x-auto pb-2 space-x-4">
                   {weatherData?.forecast?.forecastday[0]?.hour.slice(locationTime + 1, locationTime + 24).map((hour, index) => (
@@ -299,14 +303,23 @@ function App() {
                   <h3 className="text-lg font-semibold mb-4">Air Quality</h3>
                   <div id="air-quality" className="bg-blue-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">Loading...</span>
+                      <span className="font-medium">{weatherData? weatherData?.current?.air_quality?.pm10 : "Loading..."}</span>
                       <span id="aqi-value"
-                            className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-800">--</span>
+                            className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-800">PM10</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div id="aqi-bar" className="bg-gray-400 h-2 rounded-full"></div>
                     </div>
-                    <p id="aqi-description" className="text-sm mt-2 text-gray-600">Air quality data is being loaded</p>
+                    <p id="aqi-description" className="text-sm mt-2 text-gray-600">
+                      { weatherData? weatherData?.current?.air_quality?.pm10 < 54? "Air quality is good" :
+                            weatherData?.current?.air_quality?.pm10 < 154? "Air quality is moderate" :
+                                weatherData?.current?.air_quality?.pm10 < 254? "Air quality is unhealthy for sensitive groups" :
+                                    weatherData?.current?.air_quality?.pm10 < 354? "Air quality is unhealthy" :
+                                      weatherData?.current?.air_quality?.pm10 < 424? "Air quality is very unhealthy" : "Air quality is hazardous" :
+
+                        "Air quality data is being loaded"
+                      }
+                    </p>
                   </div>
                 </div>
               </div>
@@ -314,7 +327,7 @@ function App() {
 
             <div className="mt-8">
               <div className="flex border-b border-gray-200 mb-6">
-                <button id="forecast-tab" className="tab-active px-4 py-2 mr-2">7-Day Forecast</button>
+                <button id="forecast-tab" className="tab-active px-4 py-2 mr-2">3-Day Forecast</button>
                 <button id="history-tab" className="px-4 py-2 text-gray-600 hover:text-blue-600">Historical Data
                 </button>
               </div>
@@ -339,31 +352,7 @@ function App() {
                   <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
                   <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
                 </div>
-                <div className="weather-card p-4 text-center animate-pulse">
 
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
-                <div className="weather-card p-4 text-center animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
-                <div className="weather-card p-4 text-center animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
-                <div className="weather-card p-4 text-center animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
               </div>
 
               <div id="history-content" className="hidden">
