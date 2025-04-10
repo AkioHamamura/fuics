@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react";
+import WeatherCard from "@/components/ui/weatherCard.tsx";
 
 interface WeatherData {
   location: Location;
@@ -130,7 +131,7 @@ function App() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const response = await fetch(`${BASE_URL}/forecast.json?aqi=yes&q=${latitude},${longitude}`);
+            const response = await fetch(`${BASE_URL}/forecast.json?aqi=yes&days=7&q=${latitude},${longitude}`);
             if (!response.ok) throw new Error("Failed to fetch weather data");
             const data: WeatherData = await response.json();
             setWeatherData(data);
@@ -154,11 +155,10 @@ function App() {
   const getCurrentWeatherData = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${BASE_URL}/forecast.json?aqi=yes&q=${searchTerm}`);
+      const response = await fetch(`${BASE_URL}/forecast.json?aqi=yes&days=7&q=${searchTerm}`);
       if (!response.ok) throw new Error("Failed to fetch weather data");
       const data: WeatherData = await response.json();
       setWeatherData(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching data:", error);
       alert("Error: " + error);
@@ -172,8 +172,8 @@ function App() {
   <div className="container mx-auto px-4 py-8 max-w-6xl">
     <header className="flex justify-between items-center mb-8">
       <div>
-        <h1 className="text-3xl font-bold text-blue-600">WeatherSphere</h1>
-        <p className="text-sm text-gray-600">Your personal weather companion</p>
+        <h1 className="text-3xl font-bold text-blue-600">AetherFull</h1>
+        <p className="text-sm text-gray-600">A Hyper-minimalistic weather app</p>
 
       </div>
       <div className="flex items-center space-x-2">
@@ -181,10 +181,7 @@ function App() {
                     className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-200 transition">
               °C / °F
             </button>
-            <button id="location-btn"
-                    className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition">
-              <i className="fas fa-location-arrow"></i>
-            </button>
+
           </div>
         </header>
 
@@ -307,15 +304,22 @@ function App() {
                       <span id="aqi-value"
                             className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-800">PM10</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div id="aqi-bar" className="bg-gray-400 h-2 rounded-full"></div>
-                    </div>
+
                     <p id="aqi-description" className="text-sm mt-2 text-gray-600">
-                      { weatherData? weatherData?.current?.air_quality?.pm10 < 54? "Air quality is good" :
-                            weatherData?.current?.air_quality?.pm10 < 154? "Air quality is moderate" :
-                                weatherData?.current?.air_quality?.pm10 < 254? "Air quality is unhealthy for sensitive groups" :
-                                    weatherData?.current?.air_quality?.pm10 < 354? "Air quality is unhealthy" :
-                                      weatherData?.current?.air_quality?.pm10 < 424? "Air quality is very unhealthy" : "Air quality is hazardous" :
+                      { weatherData? weatherData?.current?.air_quality?.pm10 < 54?
+                              <div><div className="w-full bg-gray-200 rounded-full h-2">
+                                <div id="aqi-bar" className="bg-green-500 my-4 h-2 rounded-full"></div></div>
+                                Air quality is good</div> :
+                              weatherData?.current?.air_quality?.pm10 < 154 ? <div><div className="w-full bg-gray-200 rounded-full h-2">
+                                <div id="aqi-bar" className="bg-yellow-400 my-4 h-2 rounded-full"></div></div>Air quality is moderate </div>:
+                                  weatherData?.current?.air_quality?.pm10 < 254? <div><div className="w-full bg-gray-200 rounded-full h-2">
+                                <div id="aqi-bar" className="bg-orange-500 my-4 h-2 rounded-full"></div></div>Air quality is unhealthy for sensitive groups </div>:
+                                    weatherData?.current?.air_quality?.pm10 < 354? <div><div className="w-full bg-gray-200 rounded-full h-2">
+                                <div id="aqi-bar" className="bg-red-600 my-4 h-2 rounded-full"></div></div>Air quality is unhealthy </div>:
+                                      weatherData?.current?.air_quality?.pm10 < 424? <div><div className="w-full bg-gray-200 rounded-full h-2">
+                                <div id="aqi-bar" className="bg-purple-900 my-4 h-2 rounded-full"></div></div>Air quality is very unhealthy </div>:
+                                          <div><div className="w-full bg-gray-200 rounded-full h-2">
+                                <div id="aqi-bar" className="bg-amber-800 my-4 h-2 rounded-full"></div></div>Air quality is hazardous </div>:
 
                         "Air quality data is being loaded"
                       }
@@ -334,24 +338,7 @@ function App() {
 
               <div id="forecast-content"
                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
-                <div className="weather-card p-4 text-center animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
-                <div className="weather-card p-4 text-center animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
-                <div className="weather-card p-4 text-center animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-3"></div>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <div className="h-6 bg-gray-200 rounded w-12 mx-auto mb-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-10 mx-auto"></div>
-                </div>
+                <WeatherCard forecastDay={weatherData?.forecast.forecastday[0]}/>
 
               </div>
 
@@ -387,7 +374,7 @@ function App() {
       <p>Hosting provided by <a href="https://aws.amazon.com/" className="text-blue-500 hover:underline"
                                      target="_blank">aws.amazon.com</a></p>
 
-      <p className="mt-1">© 2025 AkioHmJr. All rights reserved.</p>
+      <p className="mt-1">© 2025 Akio Hamamura. All rights reserved.</p>
 
 
       <p className={"mt-3"}>
