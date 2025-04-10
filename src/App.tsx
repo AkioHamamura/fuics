@@ -1,6 +1,5 @@
 import {useState, useEffect} from "react";
 import WeatherCard from "@/components/ui/weatherCard.tsx";
-
 interface WeatherData {
   location: Location;
   current:  Current;
@@ -126,7 +125,7 @@ function App() {
   const [unit] = useState("metric");
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationTime, setLocationTime] = useState(0);
-  //const [menuOpen, setMenuOpen] = useState(0); //0: Forecast, 1: History
+  const [menuOpen, setMenuOpen] = useState(true); //0: Forecast, 1: History
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -167,7 +166,27 @@ function App() {
     }
   };
 
+  const handleMenuClick = () => {
+    setMenuOpen(!menuOpen);
+    const forecastTab = document.getElementById("forecast-tab");
+    const historyTab = document.getElementById("history-tab");
+    const forecastContent = document.getElementById("forecast-content");
+    const historyContent = document.getElementById("history-content");
 
+    if (menuOpen) {
+      forecastTab?.classList.add("tab-active");
+      historyTab?.classList.remove("tab-active");
+      forecastContent?.classList.remove("hidden");
+      historyContent?.classList.add("hidden");
+    } else {
+      forecastTab?.classList.remove("tab-active");
+      historyTab?.classList.add("tab-active");
+      forecastContent?.classList.add("hidden");
+      historyContent?.classList.remove("hidden");
+    }
+
+
+  }
   return (
       <div>
 
@@ -333,19 +352,13 @@ function App() {
 
             <div className="mt-8">
               <div className="flex border-b border-gray-200 mb-6">
-                <button id="forecast-tab" className="tab-active px-4 py-2 mr-2">3-Day Forecast</button>
-                <button id="history-tab" className="px-4 py-2 text-gray-600 hover:text-blue-600">Historical Data
+                <button onClick={handleMenuClick} id="forecast-tab" className="tab-active px-4 py-2 mr-2">3-Day Forecast</button>
+                <button onClick={handleMenuClick} id="history-tab" className="px-4 py-2 text-gray-600 hover:text-blue-600">Historical Data
                 </button>
               </div>
 
               <div id="forecast-content" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
-
-                    {weatherData?.forecast?.forecastday.map((day) => (<WeatherCard forecastDay={day}/>))}
-
-
-
-
-              </div>
+                    {weatherData?.forecast?.forecastday.map((day) => (<WeatherCard forecastDay={day}/>))}</div>
 
               <div id="history-content" className="hidden">
                 <div className="weather-card p-6">
