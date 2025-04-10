@@ -125,42 +125,38 @@ export interface Hour {
     air_quality: { [key: string]: number };
 }
 export default function WeatherCard({ forecastDay }: { forecastDay: Forecastday | undefined }) {
-    const { date, day } = forecastDay || {
-        date: new Date(),
-        day: {
-            maxtemp_c: 0,
-            mintemp_c: 0,
-            condition: {
-                text: "",
-                icon: "",
-                code: 0,
-            },
-            maxwind_mph: 0,
-            maxwind_kph: 0,
-            totalprecip_mm: 0,
-            totalprecip_in: 0,
-            totalsnow_cm: 0,
-            avgvis_km: 0,
-            avgvis_miles: 0,
-            avghumidity: 0,
-            daily_will_it_rain: 0,
-            daily_chance_of_rain: 0,
-            daily_will_it_snow: 0,
-            daily_chance_of_snow: 0,
-            uv: 0,
-        },
+
+    if (!forecastDay) {
+        return null;
     }
-    
-    console.log((forecastDay));
-
-
+    const day = forecastDay.day;
+    const date = forecastDay.date;
+    const month = new Date(date).getMonth();
+    const dayy = new Date(date).getDate() + 1;
+    const minTemp = day.mintemp_c;
+    const maxTemp = day.maxtemp_c;
+    function monthName(month: number) {
+        const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ];
+        return monthNames[month];
+    }
     return (
         <div className="weather-card p-4 text-center">
             <div className="text-lg font-semibold mb-3">
-                {new Date(date).toLocaleDateString(undefined, {
-                    day: "numeric",
-                    month: "short",
-                })}
+
+                {monthName(month)} {dayy}
             </div>
             <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3">
                 {day.condition.icon ? (
@@ -174,8 +170,9 @@ export default function WeatherCard({ forecastDay }: { forecastDay: Forecastday 
                 )}
             </div>
             <div className="text-sm font-medium mb-1">
-                {day.mintemp_c}°C / {day.maxtemp_c}°C
+                <span className={"text-blue-400"}>{minTemp}°C</span> / <span className={"text-red-400"}>{maxTemp}°C</span>
             </div>
+
             <div className="text-sm text-gray-600">{day.condition.text}</div>
         </div>
     );

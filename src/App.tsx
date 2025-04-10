@@ -126,6 +126,8 @@ function App() {
   const [unit] = useState("metric");
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [locationTime, setLocationTime] = useState(0);
+  //const [menuOpen, setMenuOpen] = useState(0); //0: Forecast, 1: History
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -305,7 +307,7 @@ function App() {
                             className="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-800">PM10</span>
                     </div>
 
-                    <p id="aqi-description" className="text-sm mt-2 text-gray-600">
+                    <div id="aqi-description" className="text-sm mt-2 text-gray-600">
                       { weatherData? weatherData?.current?.air_quality?.pm10 < 54?
                               <div><div className="w-full bg-gray-200 rounded-full h-2">
                                 <div id="aqi-bar" className="bg-green-500 my-4 h-2 rounded-full"></div></div>
@@ -323,7 +325,7 @@ function App() {
 
                         "Air quality data is being loaded"
                       }
-                    </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -336,9 +338,12 @@ function App() {
                 </button>
               </div>
 
-              <div id="forecast-content"
-                   className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
-                <WeatherCard forecastDay={weatherData?.forecast.forecastday[0]}/>
+              <div id="forecast-content" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+
+                    {weatherData?.forecast?.forecastday.map((day) => (<WeatherCard forecastDay={day}/>))}
+
+
+
 
               </div>
 
